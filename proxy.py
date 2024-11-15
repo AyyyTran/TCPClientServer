@@ -1,17 +1,15 @@
 import socket
+import argparse
+import sys
 
+def start_proxy(proxy_params):
 
-
-def start_proxy(self, proxy_params):
-
-    listen_ip_addr = proxy_params.listen_ip_addr
-    listen_port_num = proxy_params.listen_port_num
-    target_ip_addr = proxy_params.target_ip_addr
-    target_port_num = proxy_params.target_port_num
-    client_drop_rate = proxy_params.client_drop_rate
-    server_drop_rate = proxy_params.server_drop_rate
-    client_delay_rate = proxy_params.client_delay_rate
-    server_delay_rate = proxy_params.client_delay_rate
+    listen_ip_addr = proxy_params.listen_ip
+    listen_port_num = proxy_params.listen_port
+    target_ip_addr = proxy_params.target_ip
+    target_port_num = proxy_params.target_port
+    client_drop_rate = proxy_params.client_drop
+    server_drop_rate = proxy_params.server_drop
     client_delay_time = proxy_params.client_delay_time
     server_delay_time = proxy_params.server_delay_time
 
@@ -41,5 +39,25 @@ def start_proxy(self, proxy_params):
         
         client_socket.send(message)
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(prog=sys.argv[0])
+    parser.add_argument("--listen-ip",type=str, required=True)
+    parser.add_argument("--listen-port",type=int, required=True)
+    parser.add_argument("--target-ip",type=str, required=True)
+    parser.add_argument("--target-port",type=int, required=True)
+    # Made rest of args optional for now change to required later
+    parser.add_argument("--client-drop",type=int)
+    parser.add_argument("--server-drop",type=int)
+    parser.add_argument("--client-delay",type=int)
+    parser.add_argument("--server-delay",type=int) 
+    parser.add_argument("--client-delay-time",type=int) 
+    parser.add_argument("--server-delay-time",type=int) 
+    # parser.print_help()
+    # print("\n")
+    args = parser.parse_args()
+    print(args)
+    return args
+
 if __name__ == "__main__":
-    start_proxy("0.0.0.0", 5000)
+    arguments = parse_arguments()
+    start_proxy(arguments)

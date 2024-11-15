@@ -1,6 +1,8 @@
+import argparse
 import socket
+import sys
 
-def start_client(target_ip, target_port):
+def start_client(target_ip, target_port, timeout_in_secs):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
     while True:
@@ -11,11 +13,21 @@ def start_client(target_ip, target_port):
         client_socket.sendto(message.encode(), (target_ip, target_port))
 
         try:
-            client_socket.settimeout(2)  # 2-second timeout
+            client_socket.settimeout(timeout_in_secs)  # 2-second timeout
             ack_message, server_address = client_socket.recvfrom(1024)
             print(f"Acknowledgment from server: {ack_message.decode()}")
         except socket.timeout:
             print("No acknowledgment received. Timeout!")
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(prog=sys.argv[0])
+    parser.add_argument("--target-ip",type=str, required=True)
+    parser.add_argument("--target-port",type=int, required=True)
+    # timput has default value of 2 and optional for now make required
+    parser.add_argument("--timeout",type=int, default=2)
+    args = parser.parse_args()
+    return args
+
 if __name__ == "__main__":
-    start_client("127.0.0.1", 5000)
+    arguments = parse_arguments()
+    start_client(arguments.target_ip, arguments.target_port,arguments.timeout)
