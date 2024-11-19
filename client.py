@@ -2,9 +2,14 @@ import argparse
 import socket
 import sys
 
+from reliableProtocol import ReliableProtocol 
+
 def start_client(target_ip, target_port, timeout_in_secs):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
+    reliable_protocol = ReliableProtocol()
+    reliable_protocol.connect(client_socket, target_ip, target_port)
+
     while True:
         message = input("Enter message to send: ")
         if not message:
