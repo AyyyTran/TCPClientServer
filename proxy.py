@@ -39,6 +39,7 @@ def start_proxy(proxy_params):
         
         client_socket.send(message)
 
+# Parsing arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(prog=sys.argv[0])
     parser.add_argument("--listen-ip",type=str, required=True)

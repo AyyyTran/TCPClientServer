@@ -9,7 +9,7 @@ def start_client(target_ip, target_port, timeout_in_secs):
     
     reliable_protocol = ReliableProtocol()
     reliable_protocol.connect(client_socket, target_ip, target_port)
-
+    # message user enters
     while True:
         message = input("Enter message to send: ")
         if not message:

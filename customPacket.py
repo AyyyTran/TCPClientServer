@@ -1,5 +1,5 @@
 
-
+# packet class
 class CustomPacket:
     def __init__(self, seq_num, ack_num):
         self.flags = ["SYN", "ACK", "FIN", "RST"]

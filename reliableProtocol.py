@@ -1,7 +1,7 @@
 import socket
 from customPacket import CustomPacket
 class ReliableProtocol:
-
+# Protocol class to manage packets
     def __init__(self):
         self.packets = []
 

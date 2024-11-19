@@ -11,7 +11,7 @@ def start_server(listen_ip, listen_port):
     print(f"Server listening on {listen_ip}:{listen_port}")
 
     reliable_protocol.accept(server_socket)
-
+    # message user recieves
     while True:
         message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
         print(f"Received message: {message.decode()} from {client_address}")
