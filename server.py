@@ -4,81 +4,70 @@ from custom_packet import CustomPacket
 
 class Server:
     def __init__(self, listen_ip, listen_port):
+        """
+        Initialize the server with the IP and port to listen on.
+        """
         self.listen_ip = listen_ip
         self.listen_port = listen_port
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.connection_established = False
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server_socket.bind((self.listen_ip, self.listen_port))
         self.client_address = None
-        self.last_processed_sequence_num = -1
+        self.sequence_num = 1  # Server's sequence number starts at 1
+        self.acknowledgment_num = 0  # Acknowledgment number starts at 0
 
     def start(self):
         """
-        Start the server to listen for incoming client connections and messages.
+        Start the server to handle client communication.
         """
-        self.socket.bind((self.listen_ip, self.listen_port))
         print(f"Server listening on {self.listen_ip}:{self.listen_port}")
+        print("Server started. Waiting for connections...")
 
-        try:
-            while True:
+        while True:
+            try:
                 # Receive a packet
-                packet, addr = self.socket.recvfrom(1024)
+                packet, client_address = self.server_socket.recvfrom(1024)
+                self.client_address = client_address
+                print(f"Received packet from client: {packet.decode()}")
+
+                # Parse the packet
                 parsed_packet = CustomPacket.parse_packet(packet.decode())
                 flag = parsed_packet["flag"]
+                payload = parsed_packet["payload"]
 
-                if not self.connection_established:
-                    # Handle initial SYN for connection establishment
-                    if flag == "SYN" and parsed_packet["payload"] == "":
-                        print(f"Received SYN from {addr} with payload: {parsed_packet['payload']}")
-                        print(f"Connection established with client at {addr}")
-                        self.connection_established = True
-                        self.client_address = addr
+                # Handle SYN (Connection Establishment + First Message)
+                if flag == "SYN":
+                    print(f"Received SYN with payload: {payload}")
+                    self.acknowledgment_num = parsed_packet["sequence_num"] + 1
 
-                        # Send ACK
-                        ack_packet = CustomPacket(seq_num=1, ack_num=parsed_packet["sequence_num"] + 1)
-                        ack_payload = ack_packet.create_packet_payload("ACK", "")
-                        self.socket.sendto(ack_payload.encode(), addr)
-                        print("Sent ACK.")
-                    else:
-                        print(f"Unexpected packet from {addr} during connection establishment. Ignoring.")
+                    # Log the message (if any) in the SYN payload
+                    if payload:
+                        print(f"Message received from client: {payload}")
 
-                elif self.connection_established and addr == self.client_address:
-                    # Handle SYN + Payload (messages)
-                    if flag == "SYN" and parsed_packet["payload"] != "":
-                        # Check for duplicate sequence numbers
-                        if parsed_packet["sequence_num"] <= self.last_processed_sequence_num:
-                            print(f"Ignoring duplicate message: {parsed_packet['payload']}")
-                            continue
+                    # Send ACK
+                    print("Sending ACK...")
+                    ack_packet = CustomPacket(seq_num=self.sequence_num, ack_num=self.acknowledgment_num)
+                    ack_payload = ack_packet.create_packet_payload("ACK", "")
+                    self.server_socket.sendto(ack_payload.encode(), client_address)
+                    print("ACK sent.")
 
-                        print(f"Received message: {parsed_packet['payload']} from {addr}")
-                        self.last_processed_sequence_num = parsed_packet["sequence_num"]
+                # Handle FIN (Connection Termination)
+                elif flag == "FIN":
+                    print("Received FIN. Closing connection...")
+                    self.server_socket.close()
+                    print("Server socket closed.")
+                    break
 
-                        # Send ACK for the message
-                        ack_packet = CustomPacket(seq_num=parsed_packet["sequence_num"] + 1,
-                                                  ack_num=parsed_packet["sequence_num"] + 1)
-                        ack_payload = ack_packet.create_packet_payload("ACK", "")
-                        self.socket.sendto(ack_payload.encode(), addr)
-                        print("Sent ACK.")
-
-                    # Handle FIN to close connection
-                    elif flag == "FIN":
-                        print(f"Received FIN from {addr}. Closing connection.")
-                        self.connection_established = False
-                        self.client_address = None
-                        break  # Exit the server loop
-
-        except KeyboardInterrupt:
-            print("\nServer shutting down.")
-        finally:
-            self.socket.close()
-            print("Server socket closed.")
+            except KeyboardInterrupt:
+                print("\nServer shutting down.")
+                break
 
 
-# Entry point
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Server")
-    parser.add_argument("--listen-ip", required=True, help="IP address to bind the server")
-    parser.add_argument("--listen-port", type=int, required=True, help="Port number to listen on")
+
+    parser = argparse.ArgumentParser(description="UDP Server")
+    parser.add_argument("--listen-ip", type=str, required=True, help="IP address for server to listen on")
+    parser.add_argument("--listen-port", type=int, required=True, help="Port for server to listen on")
     args = parser.parse_args()
 
     server = Server(args.listen_ip, args.listen_port)
