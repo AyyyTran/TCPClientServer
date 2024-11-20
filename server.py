@@ -13,11 +13,15 @@ def start_server(listen_ip, listen_port):
     reliable_protocol.accept(server_socket)
     # message user recieves
     while True:
-        message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
-        print(f"Received message: {message.decode()} from {client_address}")
+        # message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
+        flag, message, sender_address = reliable_protocol.recieve(server_socket) 
+        print(f"Received message: {message} from {sender_address}")
         
-        ack_message = "ACK"
-        server_socket.sendto(ack_message.encode(), client_address)
+        # ack_message = "ACK"
+        # server_socket.sendto(ack_message.encode(), client_address)
+        reliable_protocol.acknowledgment_num += 1
+        reliable_protocol.send(server_socket, "", sender_address)
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(prog=sys.argv[0])
