@@ -1,31 +1,85 @@
-import argparse
 import socket
-import sys
+from custom_packet import CustomPacket
 
-from reliableProtocol import ReliableProtocol 
 
-def start_server(listen_ip, listen_port):
-    reliable_protocol = ReliableProtocol()
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    server_socket.bind((listen_ip, listen_port))
-    print(f"Server listening on {listen_ip}:{listen_port}")
+class Server:
+    def __init__(self, listen_ip, listen_port):
+        self.listen_ip = listen_ip
+        self.listen_port = listen_port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.connection_established = False
+        self.client_address = None
+        self.last_processed_sequence_num = -1
 
-    reliable_protocol.accept(server_socket)
-    # message user recieves
-    while True:
-        message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
-        print(f"Received message: {message.decode()} from {client_address}")
-        
-        ack_message = "ACK"
-        server_socket.sendto(ack_message.encode(), client_address)
+    def start(self):
+        """
+        Start the server to listen for incoming client connections and messages.
+        """
+        self.socket.bind((self.listen_ip, self.listen_port))
+        print(f"Server listening on {self.listen_ip}:{self.listen_port}")
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(prog=sys.argv[0])
-    parser.add_argument("--listen-ip",type=str, required=True)
-    parser.add_argument("--listen-port",type=int, required=True)
-    args = parser.parse_args()
-    return args
+        try:
+            while True:
+                # Receive a packet
+                packet, addr = self.socket.recvfrom(1024)
+                parsed_packet = CustomPacket.parse_packet(packet.decode())
+                flag = parsed_packet["flag"]
 
+                if not self.connection_established:
+                    # Handle initial SYN for connection establishment
+                    if flag == "SYN" and parsed_packet["payload"] == "":
+                        print(f"Received SYN from {addr} with payload: {parsed_packet['payload']}")
+                        print(f"Connection established with client at {addr}")
+                        self.connection_established = True
+                        self.client_address = addr
+
+                        # Send ACK
+                        ack_packet = CustomPacket(seq_num=1, ack_num=parsed_packet["sequence_num"] + 1)
+                        ack_payload = ack_packet.create_packet_payload("ACK", "")
+                        self.socket.sendto(ack_payload.encode(), addr)
+                        print("Sent ACK.")
+                    else:
+                        print(f"Unexpected packet from {addr} during connection establishment. Ignoring.")
+
+                elif self.connection_established and addr == self.client_address:
+                    # Handle SYN + Payload (messages)
+                    if flag == "SYN" and parsed_packet["payload"] != "":
+                        # Check for duplicate sequence numbers
+                        if parsed_packet["sequence_num"] <= self.last_processed_sequence_num:
+                            print(f"Ignoring duplicate message: {parsed_packet['payload']}")
+                            continue
+
+                        print(f"Received message: {parsed_packet['payload']} from {addr}")
+                        self.last_processed_sequence_num = parsed_packet["sequence_num"]
+
+                        # Send ACK for the message
+                        ack_packet = CustomPacket(seq_num=parsed_packet["sequence_num"] + 1,
+                                                  ack_num=parsed_packet["sequence_num"] + 1)
+                        ack_payload = ack_packet.create_packet_payload("ACK", "")
+                        self.socket.sendto(ack_payload.encode(), addr)
+                        print("Sent ACK.")
+
+                    # Handle FIN to close connection
+                    elif flag == "FIN":
+                        print(f"Received FIN from {addr}. Closing connection.")
+                        self.connection_established = False
+                        self.client_address = None
+                        break  # Exit the server loop
+
+        except KeyboardInterrupt:
+            print("\nServer shutting down.")
+        finally:
+            self.socket.close()
+            print("Server socket closed.")
+
+
+# Entry point
 if __name__ == "__main__":
-    arguments = parse_arguments()
-    start_server(arguments.listen_ip, arguments.listen_port)
+    import argparse
+    parser = argparse.ArgumentParser(description="Server")
+    parser.add_argument("--listen-ip", required=True, help="IP address to bind the server")
+    parser.add_argument("--listen-port", type=int, required=True, help="Port number to listen on")
+    args = parser.parse_args()
+
+    server = Server(args.listen_ip, args.listen_port)
+    server.start()

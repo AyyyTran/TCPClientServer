@@ -1,38 +1,73 @@
-import argparse
 import socket
-import sys
+from reliable_protocol import ReliableProtocol
+import argparse
 
-from reliableProtocol import ReliableProtocol 
 
-def start_client(target_ip, target_port, timeout_in_secs):
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
-    reliable_protocol = ReliableProtocol()
-    reliable_protocol.connect(client_socket, target_ip, target_port)
-    # message user enters
-    while True:
-        message = input("Enter message to send: ")
-        if not message:
-            break
+class Client:
+    def __init__(self, server_ip, server_port, timeout=5):
+        """
+        Initialize the client with server details.
+        """
+        self.server_ip = server_ip
+        self.server_port = server_port
+        self.timeout = timeout
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.protocol = ReliableProtocol(timeout=self.timeout)
 
-        client_socket.sendto(message.encode(), (target_ip, target_port))
-
+    def connect(self):
+        """
+        Establish a connection to the server.
+        """
         try:
-            client_socket.settimeout(timeout_in_secs)  # 2-second timeout
-            ack_message, server_address = client_socket.recvfrom(1024)
-            print(f"Acknowledgment from server: {ack_message.decode()}")
-        except socket.timeout:
-            print("No acknowledgment received. Timeout!")
+            print("Connecting to server...")
+            self.protocol.connect(self.socket, self.server_ip, self.server_port)
+            print("Connected to server.")
+        except Exception as e:
+            print(f"Error during connection: {e}")
+            self.close()
+            exit(1)
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(prog=sys.argv[0])
-    parser.add_argument("--target-ip",type=str, required=True)
-    parser.add_argument("--target-port",type=int, required=True)
-    # timput has default value of 2 and optional for now make required
-    parser.add_argument("--timeout",type=int, default=2)
-    args = parser.parse_args()
-    return args
+    def send_message(self):
+        """
+        Continuously prompt the user to send messages to the server.
+        """
+        try:
+            while True:
+                # Prompt the user for input
+                message = input("Enter message to send (or type 'exit' to quit): ")
+                if message.lower() == "exit":
+                    print("Exiting...")
+                    break
 
+                # Send the message with SYN + Payload
+                self.protocol.send_message(self.socket, self.server_ip, self.server_port, message)
+
+        except KeyboardInterrupt:
+            print("\nInterrupted by user. Closing connection.")
+        finally:
+            self.close()
+
+    def close(self):
+        """
+        Close the client socket and gracefully terminate the connection.
+        """
+        try:
+            self.protocol.close(self.socket, self.server_ip, self.server_port)
+        except Exception as e:
+            print(f"Error during disconnection: {e}")
+        finally:
+            self.socket.close()
+            print("Client socket closed.")
+
+
+# Entry point
 if __name__ == "__main__":
-    arguments = parse_arguments()
-    start_client(arguments.target_ip, arguments.target_port,arguments.timeout)
+    parser = argparse.ArgumentParser(description="Client")
+    parser.add_argument("--server-ip", required=True, help="IP address of the server")
+    parser.add_argument("--server-port", type=int, required=True, help="Port number of the server")
+    parser.add_argument("--timeout", type=int, default=5, help="Timeout in seconds for message acknowledgment")
+    args = parser.parse_args()
+
+    client = Client(args.server_ip, args.server_port, timeout=args.timeout)
+    client.connect()
+    client.send_message()
