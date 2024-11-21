@@ -15,11 +15,11 @@ def introduce_delay(delay_time):
     time.sleep(delay_time / 1000)  # Convert milliseconds to seconds
 
 
-def forward_packet(protocol, packet, sender_ip, target_ip, target_port):
+def forward_packet(protocol, packet, target_ip, target_port):
     """
     Forward a packet using ReliableProtocol's send function.
     """
-    print(f"Forwarding packet from {sender_ip} to {target_ip}:{target_port}")
+    print(f"Forwarding packet to {target_ip}:{target_port}")
     protocol.send(packet, target_ip, target_port)
 
 
@@ -30,8 +30,6 @@ def start_proxy(args):
     listen_port = args.listen_port
     target_ip = args.target_ip
     target_port = args.target_port
-    client_ip = args.client_ip
-    client_port = args.client_port
     client_drop = args.client_drop
     server_drop = args.server_drop
     client_delay = args.client_delay
@@ -54,8 +52,8 @@ def start_proxy(args):
             packet, sender_address = proxy_socket.recvfrom(1024)
             sender_ip, sender_port = sender_address
 
-            # Determine if packet is from client or server
-            if sender_ip == client_ip and sender_port == client_port:
+            # Determine direction of the packet
+            if sender_ip == listen_ip and sender_port == listen_port:
                 # Packet from client to server
                 print(f"Received packet from client: {packet.decode()}")
 
@@ -67,8 +65,8 @@ def start_proxy(args):
                     print(f"Delaying client packet by {client_delay_time} ms: {packet.decode()}")
                     introduce_delay(client_delay_time)
 
-                # Forward to server using ReliableProtocol
-                forward_packet(protocol, packet, sender_ip, target_ip, target_port)
+                # Forward to server
+                forward_packet(protocol, packet, target_ip, target_port)
 
             elif sender_ip == target_ip and sender_port == target_port:
                 # Packet from server to client
@@ -82,8 +80,8 @@ def start_proxy(args):
                     print(f"Delaying server packet by {server_delay_time} ms: {packet.decode()}")
                     introduce_delay(server_delay_time)
 
-                # Forward to client using ReliableProtocol
-                forward_packet(protocol, packet, sender_ip, client_ip, client_port)
+                # Forward to client
+                forward_packet(protocol, packet, listen_ip, listen_port)
 
             else:
                 print(f"Unknown sender: {sender_ip}:{sender_port}")
@@ -99,8 +97,6 @@ if __name__ == "__main__":
     parser.add_argument("--listen-port", type=int, required=True, help="Port for proxy to listen on")
     parser.add_argument("--target-ip", type=str, required=True, help="Target server IP address")
     parser.add_argument("--target-port", type=int, required=True, help="Target server port")
-    parser.add_argument("--client-ip", type=str, required=True, help="Client IP address")
-    parser.add_argument("--client-port", type=int, required=True, help="Client port")
     parser.add_argument("--client-drop", type=int, default=0, help="Drop chance for client packets (0-100)")
     parser.add_argument("--server-drop", type=int, default=0, help="Drop chance for server packets (0-100)")
     parser.add_argument("--client-delay", type=int, default=0, help="Delay chance for client packets (0-100)")
