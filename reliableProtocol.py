@@ -21,11 +21,11 @@ class ReliableProtocol:
         flag, response ,sender_address  = self.recieve(socket)
         if flag:
             # flag = message[0:3]
-            self.acknowledgment_num += 1
-            # if flag == "ACK":
+            # self.acknowledgment_num += 1
+            if flag == "ACK":
             #     print("Server responded with ACK")
-            #     self.acknowledgment_num += 1
-            # print("connection established")
+                self.acknowledgment_num += 1
+                print("connection established")
 
             
 
@@ -39,7 +39,7 @@ class ReliableProtocol:
         # print(message)
         if "SYN" == flag and self.acknowledgment_num == 0:
             print("SYN packet recieved")
-            # self.acknowledgment_num += 1
+            self.acknowledgment_num += 1
             self.send(socket, "", sender_address)
             print("accepting ACk sent")
 

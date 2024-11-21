@@ -2,6 +2,7 @@ import socket
 import argparse
 import random
 import time
+from customPacket import CustomPacket
 from reliableProtocol import ReliableProtocol
 
 
@@ -15,13 +16,14 @@ def introduce_delay(delay_time):
     time.sleep(delay_time / 1000)  # Convert milliseconds to seconds
 
 
-def forward_packet(protocol, packet, target_ip, target_port=None):
+def forward_packet(proxy_socket, protocol, packet, target_ip, target_port=None):
     """
     Forward a packet using ReliableProtocol's send function.
     """
     print(f"Forwarding packet to {target_ip}:{target_port if target_port else 'unknown port'}")
-    protocol.send(packet, target_ip, target_port)
-
+    flag, message = CustomPacket.unpack_packet(packet)
+    protocol.send(proxy_socket, message, target_ip, target_port)
+    
 
 def start_proxy(args):
     """Start the proxy to forward packets between client and server."""
@@ -43,18 +45,18 @@ def start_proxy(args):
     print(f"Proxy forwarding to {target_ip}:{target_port}")
 
     protocol = ReliableProtocol()
-
+    client_recv_port = 0
     while True:
         try:
             # Receive packet from client or server
             packet, sender_address = proxy_socket.recvfrom(1024)
-            sender_ip, _ = sender_address
+            sender_ip, sender_port = sender_address
 
             # Determine direction of the packet based on ip
             if sender_ip == listen_ip:
                 # Packet from client to server
                 print(f"Received packet from client: {packet.decode()}")
-
+                client_recv_port = sender_port
                 # Apply drop and delay logic for client-to-server packets
                 if should_apply(client_drop):
                     print(f"Client packet dropped: {packet.decode()}")
@@ -64,7 +66,7 @@ def start_proxy(args):
                     introduce_delay(client_delay_time)
 
                 # Forward to server
-                forward_packet(protocol, packet, target_ip, target_port)
+                forward_packet(proxy_socket, protocol, packet, target_ip, target_port)
 
             elif sender_ip == target_ip:
                 # Packet from server to client
@@ -77,9 +79,9 @@ def start_proxy(args):
                 if should_apply(server_delay):
                     print(f"Delaying server packet by {server_delay_time} ms: {packet.decode()}")
                     introduce_delay(server_delay_time)
-
+                protocol.acknowledgment_num += 1
                 # Forward to client
-                forward_packet(protocol, packet, listen_ip)
+                forward_packet(proxy_socket,protocol, packet, listen_ip, client_recv_port)
 
             else:
                 print(f"Unknown sender: {sender_ip}")
