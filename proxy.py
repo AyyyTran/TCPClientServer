@@ -80,7 +80,7 @@ def start_proxy(args):
                     print(f"Delaying server packet by {server_delay_time} ms: {packet.decode()}")
                     introduce_delay(server_delay_time)
                 protocol.acknowledgment_num += 1
-                # Forward to client
+                # Forward to client changed defintion to add socket
                 forward_packet(proxy_socket,protocol, packet, listen_ip, client_recv_port)
 
             else:
