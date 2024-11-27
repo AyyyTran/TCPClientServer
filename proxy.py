@@ -21,8 +21,8 @@ def forward_packet(proxy_socket, protocol, packet, target_ip, target_port=None):
     Forward a packet using ReliableProtocol's send function.
     """
     print(f"Forwarding packet to {target_ip}:{target_port if target_port else 'unknown port'}")
-    flag, message = CustomPacket.unpack_packet(packet)
-    protocol.send(proxy_socket, message, target_ip, target_port)
+    flag,ack, message = CustomPacket.unpack_packet(packet.decode())
+    protocol.send(proxy_socket, message,ack, target_ip, target_port_num=target_port)
     
 
 def start_proxy(args):
@@ -79,7 +79,7 @@ def start_proxy(args):
                 if should_apply(server_delay):
                     print(f"Delaying server packet by {server_delay_time} ms: {packet.decode()}")
                     introduce_delay(server_delay_time)
-                protocol.acknowledgment_num += 1
+                # protocol.acknowledgment_num += 1
                 # Forward to client changed defintion to add socket
                 forward_packet(proxy_socket,protocol, packet, listen_ip, client_recv_port)
 

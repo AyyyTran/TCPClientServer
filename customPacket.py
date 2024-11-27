@@ -17,19 +17,20 @@ class CustomPacket:
             flag = self.flags[0]
         else:
             flag = self.flags[1]
+
         # self.header =  flag + "Seq:" +  str(self.sequence_num) + "Ack:" + str(self.acknowledgment_num)
         self.header =  flag + "Ack:" + str(self.acknowledgment_num)
     
     def create_payload(self, message):
         self.create_header()
-        payload =  self.header + "Msg:" + message
-        return payload
+        packet_payload =  self.header + "Msg:" + message
+        return packet_payload
     
     def unpack_packet(payload):
-        decoded_payload = payload.decode()
         # flag_split_message = decoded_payload.split("Seq:")
-        flag_split_message = decoded_payload.split("Ack:")
+        flag_split_message = payload.split("Ack:")
         flag = flag_split_message[0]
-        message_split_string =  decoded_payload.split("Msg:")
+        ack = flag_split_message[1].split("Msg:")[0]
+        message_split_string =  payload.split("Msg:")
         message = message_split_string[1]
-        return flag, message
+        return flag,int(ack), message

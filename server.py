@@ -14,13 +14,19 @@ def start_server(listen_ip, listen_port):
     # message user recieves
     while True:
         # message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
-        flag, message, sender_address = reliable_protocol.recieve(server_socket) 
-        print(f"Received message: {message} from {sender_address}")
-        
+        # flag, message, sender_address = reliable_protocol.recieve(server_socket) 
+        flag,ack, message, sender_address  = reliable_protocol.recieve(server_socket)
+        packet_added = reliable_protocol.packet_added(flag,ack, message)
+        if packet_added:
+            print(f"Received message: {message} from {sender_address}")
+            ack += 1
+            reliable_protocol.send(server_socket, "",ack, sender_address)
+            print("sending back ACK")
+        else:
+            print("Duplicate packet with ack" + str(ack) + " dropping")
         # ack_message = "ACK"
         # server_socket.sendto(ack_message.encode(), client_address)
-        reliable_protocol.acknowledgment_num += 1
-        reliable_protocol.send(server_socket, "", sender_address)
+
 
 
 def parse_arguments():
