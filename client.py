@@ -9,7 +9,8 @@ def start_client(target_ip, target_port, timeout_in_secs):
     
     reliable_protocol = ReliableProtocol()
     reliable_protocol.connect(client_socket, target_ip, target_port)
-    
+    timeout_limit = 10
+    counter = 0
     # message user enters
     while True:
         message = input("Enter message to send: ")
@@ -24,6 +25,9 @@ def start_client(target_ip, target_port, timeout_in_secs):
         reliable_protocol.send(client_socket, message,ack_num, target_ip, target_port)
         # Need while looop so client recieves the ack back from first response otherwise doesnt
         while True:
+            if (counter == timeout_limit):
+                print("Resent packet " + str(timeout_limit) + " times.")
+                break
             try:
                 client_socket.settimeout(timeout_in_secs)  # 2-second timeout
                 # ack_message, server_address = client_socket.recvfrom(1024)
@@ -39,6 +43,7 @@ def start_client(target_ip, target_port, timeout_in_secs):
             except socket.timeout:
                 print("No acknowledgment received. Timeout!")
                 reliable_protocol.send(client_socket, message,ack_num, target_ip, target_port)
+                counter+=1
                 print("Resending message: " + message)
             
             
