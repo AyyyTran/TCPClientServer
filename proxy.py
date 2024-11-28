@@ -141,6 +141,8 @@ def start_proxy(args):
                 # protocol.acknowledgment_num += 1
                 # Forward to client changed defintion to add socket
                 forward_packet(proxy_socket,protocol, packet, settings["listen_ip"], client_recv_port)
+                print(f"Forwarded packet to client: {packet.decode()}")
+                print("\n")
                 print("\n")
                 # reconfigure_settings(settings)
             else:
