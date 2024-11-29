@@ -20,10 +20,10 @@ def start_server(listen_ip, listen_port):
         if packet_added:
             print(f"Received message: {message} from {sender_address}")
             ack += 1
-            reliable_protocol.send(server_socket, "",ack, sender_address)
             print("sending back ACK")
         else:
             print("Duplicate packet with ack" + str(ack) + " dropping")
+        reliable_protocol.send(server_socket, "",ack, sender_address)
         # ack_message = "ACK"
         # server_socket.sendto(ack_message.encode(), client_address)
 

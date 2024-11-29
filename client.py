@@ -8,11 +8,12 @@ def start_client(target_ip, target_port, timeout_in_secs):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
     reliable_protocol = ReliableProtocol()
-    reliable_protocol.connect(client_socket, target_ip, target_port)
+    
     timeout_limit = 10
     counter = 0
     # message user enters
     while True:
+        reliable_protocol.connect(client_socket, target_ip, target_port)
         message = input("Enter message to send: ")
         if not message:
             break
