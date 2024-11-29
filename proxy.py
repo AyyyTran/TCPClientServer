@@ -13,6 +13,7 @@ def should_apply(chance):
 
 def introduce_delay(delay_time):
     """Introduce a delay in milliseconds."""
+    
     time.sleep(delay_time / 1000)  # Convert milliseconds to seconds
 
 
@@ -97,7 +98,7 @@ def start_proxy(args):
     # client_delay_time = args.client_delay_time
     # server_delay_time = args.server_delay_time
     settings = intialize_settings(args)
-
+    client_delay_min, client_delay_max, server_delay_min, server_delay_max = parse_delay_time(args.client_delay_time, args.server_delay_time)
     proxy_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     proxy_socket.bind((settings["listen_ip"], settings["listen_port"]))
     print(f"Proxy listening on {settings["listen_ip"]}:{settings["listen_port"]}")
@@ -121,8 +122,9 @@ def start_proxy(args):
                     print(f"Client packet dropped: {packet.decode()}")
                     continue
                 if should_apply(settings["client_delay"]):
-                    print(f"Delaying client packet by {settings["client_delay_time"]} ms: {packet.decode()}")
-                    introduce_delay(settings["client_delay_time"])
+                    delay_time = random.randint(client_delay_min, client_delay_max)
+                    print(f"Delaying client packet by {delay_time} ms: {packet.decode()}")
+                    introduce_delay(delay_time)
 
                 # Forward to server
                 forward_packet(proxy_socket, protocol, packet, settings["target_ip"], settings["target_port"])
@@ -136,8 +138,9 @@ def start_proxy(args):
                     print(f"Server packet dropped: {packet.decode()}")
                     continue
                 if should_apply(settings["server_delay"]):
-                    print(f"Delaying server packet by {settings["server_delay_time"]} ms: {packet.decode()}")
-                    introduce_delay(settings["server_delay_time"])
+                    delay_time = random.randint(server_delay_min, server_delay_max)
+                    print(f"Delaying server packet by {delay_time} ms: {packet.decode()}")
+                    introduce_delay(delay_time)
                 # protocol.acknowledgment_num += 1
                 # Forward to client changed defintion to add socket
                 forward_packet(proxy_socket,protocol, packet, settings["listen_ip"], client_recv_port)
@@ -152,6 +155,22 @@ def start_proxy(args):
             print("\nProxy shutting down.")
             break
 
+def parse_delay_time(client_delay_time, server_delay_time):
+    client_min = client_delay_time
+    client_max = client_delay_time
+    if client_delay_time:
+        listoftimes = client_delay_time.split("-")
+        if len(listoftimes) == 2:
+            client_min = listoftimes[0]
+            client_max = listoftimes[1]
+    server_min = server_delay_time
+    server_max = server_delay_time
+    if server_delay_time:
+        listoftimes = client_delay_time.split("-")
+        if len(listoftimes) == 2:
+            server_min = listoftimes[0]
+            server_max = listoftimes[1]
+    return int(client_min), int(client_max), int(server_min), int(server_max)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="UDP Proxy with drop and delay simulation")
@@ -163,8 +182,7 @@ if __name__ == "__main__":
     parser.add_argument("--server-drop", type=int, default=0, help="Drop chance for server packets (0-100)")
     parser.add_argument("--client-delay", type=int, default=0, help="Delay chance for client packets (0-100)")
     parser.add_argument("--server-delay", type=int, default=0, help="Delay chance for server packets (0-100)")
-    parser.add_argument("--client-delay-time", type=int, default=0, help="Delay time for client packets (ms)")
-    parser.add_argument("--server-delay-time", type=int, default=0, help="Delay time for server packets (ms)")
+    parser.add_argument("--client-delay-time", default=0, help="Delay time for client packets (ms)")
+    parser.add_argument("--server-delay-time",  default=0, help="Delay time for server packets (ms)")
     args = parser.parse_args()
-
     start_proxy(args)
