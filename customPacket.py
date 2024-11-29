@@ -2,7 +2,7 @@
 # packet class
 class CustomPacket:
     def __init__(self, ack_num):
-        self.flags = ["SYN", "ACK", "FIN", "RST"]
+        self.flags = ["SYN", "ACK", "FIN"]
         # self.header = {"seqnum": 0, "acknum" : 0}
         # self.sequence_num = seq_num
         self.acknowledgment_num = ack_num
@@ -12,10 +12,14 @@ class CustomPacket:
         # sequence_num = self.header["seqnum"]
         # acknowledgment_num = self.header["acknum"]
         flag = ""
-        # if self.sequence_num == 0:
+        # set the fin flag 
+        if self.acknowledgment_num == -1;
+            flag = self.flag[2]
+        # if self.sequence_num == 0: set syn packet
         if self.acknowledgment_num == 0:
             flag = self.flags[0]
         else:
+            # set ack packet 
             flag = self.flags[1]
 
         # self.header =  flag + "Seq:" +  str(self.sequence_num) + "Ack:" + str(self.acknowledgment_num)
@@ -34,3 +38,4 @@ class CustomPacket:
         message_split_string =  payload.split("Msg:")
         message = message_split_string[1]
         return flag,int(ack), message
+make fin-1
