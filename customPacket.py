@@ -13,7 +13,7 @@ class CustomPacket:
         # acknowledgment_num = self.header["acknum"]
         flag = ""
         # set the fin flag 
-        if self.acknowledgment_num == -1;
+        if self.acknowledgment_num == -1:
             flag = self.flag[2]
         # if self.sequence_num == 0: set syn packet
         if self.acknowledgment_num == 0:
