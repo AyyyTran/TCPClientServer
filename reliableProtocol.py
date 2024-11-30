@@ -7,7 +7,7 @@ class ReliableProtocol:
         # self.sequence_num = 0
         # self.acknowledgment_num = 0
 
-    def connect(self, socket, target_ip, taget_port_num):
+    def connect(self, client_socket, target_ip, taget_port_num, timeout_in_secs):
         # packet = CustomPacket(sequence_num, acknowledgment_num)
         # packet.create_header()
         # packet_payload = packet.create_packet_payload(message)
@@ -16,35 +16,48 @@ class ReliableProtocol:
 
         # Yep so basically I made a function in sutom protocol to create the packet instead
         # And then now Im using custom send and recieve functions in this class
+        timeout_limit = 10
+        counter = 0
         acknowledgement_num = 0
-        self.send(socket, "",acknowledgement_num,  target_ip, taget_port_num)
-
-        flag, ack, message, sender_address  = self.recieve(socket)
-        if flag:
-            # flag = message[0:3]
-            # self.acknowledgment_num += 1
-            if flag == "ACK":
-            #     print("Server responded with ACK")
-                # ack += 1
-                self.packet_added(flag, ack, message)
-                print("connection established")
-                self.packet_added(flag, ack, message)
+        while True:
+            if (counter == timeout_limit):
+                print("Resent message " + str(timeout_limit) + " times.")
+                counter = 0
+                break
+            try:
+                self.send(client_socket, "",acknowledgement_num,  target_ip, taget_port_num)
+                client_socket.settimeout(timeout_in_secs) 
+                flag, ack, message, sender_address  = self.recieve(client_socket)
+                packet_added = self.packet_added(flag, ack, message)
+                if packet_added:
+                    # flag = message[0:3]
+                    # self.acknowledgment_num += 1
+                    if flag == "ACK":
+                    #     print("Server responded with ACK")
+                        # ack += 1
+                        print("connection established")
+                        packet = CustomPacket(ack)
+                        packet_payload = packet.create_payload(message)
+                        break
+            except socket.timeout:
+                print("No acknowledgment received. Timeout!")
+                self.send(client_socket, "",acknowledgement_num,  target_ip, taget_port_num)
+                counter+=1
+                print("Resending connect ")
             
 
-    def accept(self, socket):
+    def accept(self, server_socket, ack):
         # # seq_num = 0
         # if self.packets:
         #     # seq_num = self.packets[0].sequence_num
         #     seq_num = self.packets[0].sequence_num
-        flag,ack, message, sender_address  = self.recieve(socket)
-        print("recieved packet")
-        print("Flag: " + flag)
-        print("Ack: " + str(ack))
-        if "SYN" == flag and ack == 0:
-            print("SYN packet recieved")
-            ack += 1
-            self.send(socket, "",ack, sender_address)
-            print("accepting ACk sent")
+        print("SYN packet recieved")
+        packet = CustomPacket(ack)
+        message = ""
+        packet_payload = packet.create_payload(message)
+        self.packets.append(packet)
+        # self.send(server_socket, "",ack, sender_address)
+        print("accepting ACk sent")
 
    
     def send(self, socket,message,ack,target_ip_addr, target_port_num = None):
