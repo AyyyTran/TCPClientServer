@@ -17,7 +17,8 @@ def start_client(target_ip, target_port, timeout_in_secs):
             try:
                 message = input("Enter message to send: ")
                 if not message:
-                    break
+                    print("Message can't be empty! Please enter some text.")
+                    continue
                 seq_num = reliable_protocol.packets[-1].sequence_num
                 print("sending packet with seq: " + str(seq_num))
                 # client_socket.sendto(message.encode(), (target_ip, target_port))
@@ -30,9 +31,9 @@ def start_client(target_ip, target_port, timeout_in_secs):
                 while True:
                     if (counter == timeout_limit):
                         print("Resent packet " + str(timeout_limit) + " times.")
-                        counter = 0
-                        client_socket.settimeout(None)
-                        break
+                        print("\nLimit reached. Closing client connection...")
+                        client_socket.close()
+                        sys.exit("Client socket closed. Exiting...")
                     try:
                         # ack_message, server_address = client_socket.recvfrom(1024)
                         # flag, message, sender_address = reliable_protocol.recieve(client_socket)
@@ -51,15 +52,19 @@ def start_client(target_ip, target_port, timeout_in_secs):
                         print("Resending message: " + message)
             except KeyboardInterrupt:
                 # Handle Ctrl+C gracefully inside the loop
-                print("\nCtrl+C detected. Closing client connection...")
-                break
+                print("\nCtrl+C detected while waiting for input. Closing client connection...")
+                client_socket.close()
+                sys.exit("Client socket closed. Exiting...")
+    except KeyboardInterrupt:
+                # Handle Ctrl+C gracefully inside the loop
+                print("\nCtrl+C detected while running. Closing client connection...")
+                client_socket.close()
+                sys.exit("Client socket closed. Exiting...")
     except Exception as e:
         # Handle unexpected errors
         print(f"An unexpected error occurred: {e}")
-    finally:
-        # Ensure socket is properly closed
-        client_socket.close()
-        print("Client socket closed. Exiting.")
+        
+        
 
 def parse_arguments():
     parser = argparse.ArgumentParser(prog=sys.argv[0])

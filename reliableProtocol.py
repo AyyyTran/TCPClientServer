@@ -1,4 +1,5 @@
 import socket
+import sys
 from customPacket import CustomPacket
 class ReliableProtocol:
 # Protocol class to manage packets
@@ -21,9 +22,9 @@ class ReliableProtocol:
         sequence_num = 0
         while True:
             if (counter == timeout_limit):
-                print("Resent message " + str(timeout_limit) + " times.")
-                counter = 0
-                break
+                print("\nLimit reached for attempting accept. Closing client connection...")
+                client_socket.close()
+                sys.exit("Client socket closed. Exiting...")
             try:
                 self.send(client_socket, "",sequence_num,  target_ip, taget_port_num)
                 client_socket.settimeout(timeout_in_secs) 
