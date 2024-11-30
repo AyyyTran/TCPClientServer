@@ -15,21 +15,21 @@ def start_server(listen_ip, listen_port):
     while True:
         # message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
         # flag, message, sender_address = reliable_protocol.recieve(server_socket) 
-        flag,ack, message, sender_address  = reliable_protocol.recieve(server_socket)
-        packet_added = reliable_protocol.packet_added(flag,ack, message)
+        flag,seq, message, sender_address  = reliable_protocol.recieve(server_socket)
+        packet_added = reliable_protocol.packet_added(flag,seq, message)
         # if "SYN" == flag and ack == 0:
         #             reliable_protocol.accept(server_socket, ack)
         #             ack += 1
         # else:
         if packet_added:
             print(f"Received message: {message} from {sender_address}")
-            ack += 1
+            seq += 1
             print("sending back ACK")
-            reliable_protocol.send(server_socket, "",ack, sender_address)
+            reliable_protocol.send(server_socket, "",seq, sender_address)
         else:
-            print("Duplicate packet with ack" + str(ack) + " dropping")
-            print("resending ack " + str(reliable_protocol.packets[-1].acknowledgment_num+1))
-            reliable_protocol.send(server_socket, "",reliable_protocol.packets[-1].acknowledgment_num+1, sender_address)
+            print("Duplicate packet with seq: " + str(seq) + " dropping")
+            print("resending ack " + str(reliable_protocol.packets[-1].sequence_num+1))
+            reliable_protocol.send(server_socket, "",reliable_protocol.packets[-1].sequence_num+1, sender_address)
         
         # ack_message = "ACK"
         # server_socket.sendto(ack_message.encode(), client_address)

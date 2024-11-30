@@ -22,8 +22,8 @@ def forward_packet(proxy_socket, protocol, packet, target_ip, target_port=None):
     Forward a packet using ReliableProtocol's send function.
     """
     print(f"Forwarding packet to {target_ip}:{target_port if target_port else 'unknown port'}")
-    flag,ack, message = CustomPacket.unpack_packet(packet.decode())
-    protocol.send(proxy_socket, message,ack, target_ip, target_port_num=target_port)
+    flag,seq_num, message = CustomPacket.unpack_packet(packet.decode())
+    protocol.send(proxy_socket, message,seq_num, target_ip, target_port_num=target_port)
 
 
 def reconfigure_settings(settings):
