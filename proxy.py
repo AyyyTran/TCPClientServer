@@ -2,6 +2,7 @@ import socket
 import argparse
 import random
 import time
+import sys
 from customPacket import CustomPacket
 from reliableProtocol import ReliableProtocol
 
@@ -106,6 +107,7 @@ def start_proxy(args):
 
     protocol = ReliableProtocol()
     client_recv_port = 0
+    # ***CHANGE client_recv_ip = 0***
     while True:
         try:
             # Receive packet from client or server
@@ -113,10 +115,12 @@ def start_proxy(args):
             sender_ip, sender_port = sender_address
 
             # Determine direction of the packet based on ip
+            # ***CHANGE if sender_ip != settings["target_ip"]***
             if sender_ip == settings["listen_ip"]:
                 # Packet from client to server
                 print(f"Received packet from client: {packet.decode()}")
                 client_recv_port = sender_port
+                # ***CHANGE client_recv_ip = sender_ip***
                 # Apply drop and delay logic for client-to-server packets
                 if should_apply(settings["client_drop"]):
                     print(f"Client packet dropped: {packet.decode()}")
@@ -143,6 +147,7 @@ def start_proxy(args):
                     introduce_delay(delay_time)
                 # protocol.acknowledgment_num += 1
                 # Forward to client changed defintion to add socket
+                # ***CHANGE forward_packet(proxy_socket,protocol, packet, client_recv_ip, client_recv_port) ***
                 forward_packet(proxy_socket,protocol, packet, settings["listen_ip"], client_recv_port)
                 print(f"Forwarded packet to client: {packet.decode()}")
                 print("\n")
@@ -156,8 +161,8 @@ def start_proxy(args):
             break
 
 def parse_delay_time(client_delay_time, server_delay_time):
-    str_rep_client_delay_time =str(client_delay_time)
-    str_rep_server_delay_time =str(server_delay_time)
+    str_rep_client_delay_time = str(client_delay_time)
+    str_rep_server_delay_time = str(server_delay_time)
     client_min = str_rep_client_delay_time
     client_max = str_rep_client_delay_time
     if str_rep_client_delay_time:
@@ -172,6 +177,18 @@ def parse_delay_time(client_delay_time, server_delay_time):
         if len(listoftimes) == 2:
             server_min = listoftimes[0]
             server_max = listoftimes[1]
+    params = [client_min,client_min,server_min,server_max]
+    for i in range(len(params)):
+        label = ""
+        if i == 0 or i == [1]:
+            label = "client delay time"
+        else:
+            label = "server delay time"
+        try:
+            int(params[i])
+        except ValueError:
+            sys.exit("Invalid value for " + label + ": " + params[i] + " !Must be integer!")
+
     return int(client_min), int(client_max), int(server_min), int(server_max)
 
 if __name__ == "__main__":
