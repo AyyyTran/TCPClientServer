@@ -156,17 +156,19 @@ def start_proxy(args):
             break
 
 def parse_delay_time(client_delay_time, server_delay_time):
-    client_min = client_delay_time
-    client_max = client_delay_time
-    if client_delay_time:
-        listoftimes = client_delay_time.split("-")
+    str_rep_client_delay_time =str(client_delay_time)
+    str_rep_server_delay_time =str(server_delay_time)
+    client_min = str_rep_client_delay_time
+    client_max = str_rep_client_delay_time
+    if str_rep_client_delay_time:
+        listoftimes = str_rep_client_delay_time.split("-")
         if len(listoftimes) == 2:
             client_min = listoftimes[0]
             client_max = listoftimes[1]
-    server_min = server_delay_time
-    server_max = server_delay_time
-    if server_delay_time:
-        listoftimes = client_delay_time.split("-")
+    server_min = str_rep_server_delay_time
+    server_max = str_rep_server_delay_time
+    if str_rep_server_delay_time:
+        listoftimes = str_rep_server_delay_time.split("-")
         if len(listoftimes) == 2:
             server_min = listoftimes[0]
             server_max = listoftimes[1]
