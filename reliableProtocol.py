@@ -48,18 +48,11 @@ class ReliableProtocol:
                 print("Resending connect ")
             
 
-    def accept(self, server_socket, seq_num):
-        # # seq_num = 0
-        # if self.packets:
-        #     # seq_num = self.packets[0].sequence_num
-        #     seq_num = self.packets[0].sequence_num
+    def accept(self):
         print("SYN packet recieved")
-        packet = CustomPacket(seq_num)
-        message = ""
-        packet_payload = packet.create_payload(message)
-        self.packets.append(packet)
-        # self.send(server_socket, "",ack, sender_address)
-        print("accepting ACk sent")
+        if self.packets and self.packets[-1].sequence_num != 0:
+            self.packets.clear()
+        
 
    
     def send(self, socket,message,seq_num,target_ip_addr, target_port_num = None):

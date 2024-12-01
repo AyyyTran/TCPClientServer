@@ -16,15 +16,19 @@ def start_server(listen_ip, listen_port):
         # message, client_address = server_socket.recvfrom(1024)  # buffer size 1024 bytes
         # flag, message, sender_address = reliable_protocol.recieve(server_socket) 
         flag,seq, message, sender_address  = reliable_protocol.recieve(server_socket)
+        if flag == "SYN":
+                 reliable_protocol.accept()
         packet_added = reliable_protocol.packet_added(flag,seq, message)
-        # if "SYN" == flag and ack == 0:
-        #             reliable_protocol.accept(server_socket, ack)
-        #             ack += 1
-        # else:
+        # for packet in reliable_protocol.packets:
+        #         print(packet)
+        #         print(packet.sequence_num)
         if packet_added:
-            print(f"Received message: {message} from {sender_address}")
+            if flag == "SYN":
+                 print("accepting ACk sent")
+            else:
+                print(f"Received message: {message} from {sender_address}")
+                print("sending back ACK")
             seq += 1
-            print("sending back ACK")
             reliable_protocol.send(server_socket, "",seq, sender_address)
         else:
             print("Duplicate packet with seq: " + str(seq) + " dropping")

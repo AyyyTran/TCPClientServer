@@ -28,6 +28,7 @@ def start_client(target_ip, target_port, timeout_in_secs):
                 #     print(packet)
                 #     print(packet.acknowledgment_num)
                 reliable_protocol.send(client_socket, message,seq_num, target_ip, target_port)
+                client_socket.settimeout(timeout_in_secs) 
                 # Need while looop so client recieves the ack back from first response otherwise doesnt
                 while True:
                     if (counter == timeout_limit):
@@ -43,6 +44,7 @@ def start_client(target_ip, target_port, timeout_in_secs):
                         packet_added = reliable_protocol.packet_added(flag, seq, message)
                         if packet_added:
                             print(f"Acknowledgment from server: {flag}: {seq}")
+                            counter = 0
                             break
                         else:
                             print("Duplciate Ack" + str(seq)+ "from server")
@@ -72,7 +74,7 @@ def parse_arguments():
     parser.add_argument("--target-ip",type=str, required=True)
     parser.add_argument("--target-port",type=int, required=True)
     # timput has default value of 2 and optional for now make required
-    parser.add_argument("--timeout",type=int, default=10)
+    parser.add_argument("--timeout",type=int, default=2)
     args = parser.parse_args()
     return args
 
