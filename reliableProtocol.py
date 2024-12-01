@@ -26,6 +26,7 @@ class ReliableProtocol:
                 client_socket.close()
                 sys.exit("Client socket closed. Exiting...")
             try:
+                print("sending connect")
                 self.send(client_socket, "",sequence_num,  target_ip, taget_port_num)
                 client_socket.settimeout(timeout_in_secs) 
                 flag, seq_num, message, sender_address  = self.recieve(client_socket)
