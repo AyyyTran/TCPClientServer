@@ -46,8 +46,6 @@ def start_client(target_ip, target_port, timeout_in_secs):
                             print(f"Acknowledgment from server: {flag}: {seq}")
                             counter = 0
                             break
-                        else:
-                            # print("Duplciate Ack" + str(seq)+ "from server")
                     except socket.timeout:
                         print("No acknowledgment received. Timeout!")
                         reliable_protocol.send(client_socket, message,seq_num, target_ip, target_port)
