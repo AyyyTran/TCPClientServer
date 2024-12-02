@@ -177,7 +177,7 @@ def start_proxy(args):
                         print(f"Received packet from server: {packet.decode()}")
 
                         # Apply drop and delay logic for server-to-client packets
-                        executor.submit(handle_server_to_client,proxy_socket,protocol,packet,client_recv_ip, client_recv_port, sender_address,settings, settings_lock)
+                        executor.submit(handle_server_to_client,proxy_socket,protocol,packet,client_recv_ip, client_recv_port,settings, settings_lock)
 
                     else:
                         print(f"Unknown sender: {sender_ip}")
