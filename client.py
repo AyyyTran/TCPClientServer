@@ -73,8 +73,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(prog=sys.argv[0])
     parser.add_argument("--target-ip",type=str, required=True)
     parser.add_argument("--target-port",type=int, required=True)
-    # timput has default value of 2 and optional for now make required
-    parser.add_argument("--timeout",type=int, default=2)
+    parser.add_argument("--timeout",type=int, default=0)
     args = parser.parse_args()
     return args
 
