@@ -5,6 +5,7 @@ import argparse
 import random
 from threading import Lock, Thread
 import time
+import os
 import sys
 from customPacket import CustomPacket
 from reliableProtocol import ReliableProtocol
@@ -146,43 +147,48 @@ def start_proxy(args):
     reconfigure_thread = Thread(target=reconfigure_settings, args=(settings,), daemon=True)
     reconfigure_thread.start()
     
-
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        while True:
-            try:
-                 # Safely read the latest settings
+    try:
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            while True:
+                # Safely read the latest settings
                 
                 # client_delay_min, client_delay_max, server_delay_min, server_delay_max = parse_delay_time(settings["client_delay_time"],settings["server_delay_time"])
 
                 # Receive packet from client or server
-                packet, sender_address = proxy_socket.recvfrom(1024)
-                sender_ip, sender_port = sender_address
+                try:
+                    packet, sender_address = proxy_socket.recvfrom(1024)
+                    sender_ip, sender_port = sender_address
 
-                
-                # Determine direction of the packet based on ip
-                # ***CHANGE if sender_ip != settings["target_ip"]***
-                if sender_ip == settings["listen_ip"]:
-                    # Packet from client to server
-                    print(f"Received packet from client: {packet.decode()}")
-                    client_recv_port = sender_port
                     
-                    # ***CHANGE client_recv_ip = sender_ip***
-                    # Apply drop and delay logic for client-to-server packets
-                    executor.submit( handle_client_to_server,proxy_socket,protocol,packet,sender_address,settings, settings_lock)
+                    # Determine direction of the packet based on ip
+                    # ***CHANGE if sender_ip != settings["target_ip"]***
+                    if sender_ip == settings["listen_ip"]:
+                        # Packet from client to server
+                        print(f"Received packet from client: {packet.decode()}")
+                        client_recv_port = sender_port
+                        
+                        # ***CHANGE client_recv_ip = sender_ip***
+                        # Apply drop and delay logic for client-to-server packets
+                        executor.submit( handle_client_to_server,proxy_socket,protocol,packet,sender_address,settings, settings_lock)
 
-                elif sender_ip == settings["target_ip"]:
-                    # Packet from server to client
-                    print(f"Received packet from server: {packet.decode()}")
+                    elif sender_ip == settings["target_ip"]:
+                        # Packet from server to client
+                        print(f"Received packet from server: {packet.decode()}")
 
-                    # Apply drop and delay logic for server-to-client packets
-                    executor.submit(handle_server_to_client,proxy_socket,protocol,packet,sender_address,settings,client_recv_port, settings_lock)
+                        # Apply drop and delay logic for server-to-client packets
+                        executor.submit(handle_server_to_client,proxy_socket,protocol,packet,sender_address,settings,client_recv_port, settings_lock)
 
-                else:
-                    print(f"Unknown sender: {sender_ip}")
+                    else:
+                        print(f"Unknown sender: {sender_ip}")
+                except socket.timeout:
+                    print("Socket timeout: No packets received within the timeout period.")
 
-            except KeyboardInterrupt:
-                print("\nProxy shutting down.")
-                break
+    except KeyboardInterrupt:
+        print("\nCTRL+C detected")
+    finally:
+        proxy_socket.close()
+        print("\nProxy socket closed. Exiting...")
+        os._exit(0) 
 
 def parse_delay_time(delay_time, dir_label):
     str_rep_delay_time = str(delay_time)
