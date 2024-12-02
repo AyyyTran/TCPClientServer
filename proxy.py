@@ -163,7 +163,7 @@ def start_proxy(args):
                     
                     # Determine direction of the packet based on ip
                     # ***CHANGE if sender_ip != settings["target_ip"]***
-                    if sender_ip != settings["listen_ip"]:
+                    if sender_ip != settings["target_ip"]:
                         # Packet from client to server
                         print(f"Received packet from client: {packet.decode()}")
                         client_recv_port = sender_port
