@@ -1,0 +1,223 @@
+Delay Only
+	(0% delay)
+	#Client and server no delay or drop
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	--target-ip 127.0.0.2 --target-port 5000
+ 
+	#Client 0% delay delay
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 
+	 --client-delay 0 --client-delay-time 1000
+
+	#Server 0% delay 
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-delay 0 
+	 --server-delay-time 1000
+ 
+	#Client and Server 0% delay 
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 0 
+	 --server-delay 0 --client-delay-time 1000 --server-delay-time 2000
+	-------------------------------------
+	(50% delay)
+	#Client 50% delay delay time less than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 50 
+	 --client-delay-time 1000
+ 
+	#Client 50% delay delay time more than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 50 
+	 --client-delay-time 5000
+ 
+	#Server 50% delay delay time less than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-delay 50 
+	 --server-delay-time 1000
+ 
+	#Server 50% delay delay time more than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-delay 50 
+	 --server-delay-time 5000
+	 
+	#Client and Server 50% delay delay total time less than timeout
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 50 
+	 --client-delay-time 1000 --server-delay 50 
+	 --server-delay-time 1000
+	
+	#Client and Server 50% delay delay total time more than timeout
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 50 
+	 --client-delay-time 1000 --server-delay 50 
+	 --server-delay-time 1000
+	 -------------------------------------
+	 (100% delay)
+	#Client 100% delay delay time less than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 100 
+	 --client-delay-time 1000
+ 
+	#Client 100% delay delay time more than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 100 
+	 --client-delay-time 5000
+ 
+	#Server 100% delay delay time less than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-delay 100 
+	 --server-delay-time 1000
+ 
+	#Server 100% delay delay time more than timeout
+	 python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-delay 50100
+	 --server-delay-time 5000
+	 
+	#Client and Server 100% delay delay total time less than timeout
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 100 
+	 --client-delay-time 1000 --server-delay 100 
+	 --server-delay-time 1000
+	
+	#Client and Server 100% delay delay total time more than timeout
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-delay 100 
+	 --client-delay-time 1000 --server-delay 100 
+	 --server-delay-time 1000
+------------------------------------------------------------------------------
+Drop only
+	(Client drop only)
+	#Client Drop 0% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0
+	 
+	#Client drop 50%
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50
+	 
+	#Client drop 100%
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100
+	 ----------------------------------
+	 (server drop only)
+	#server drop 0%
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-drop 0
+	#server drop 50%
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-drop 50
+	#server drop 100%
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --server-drop 100
+	 -------------------------
+	 (Client 0 drop server changing drop)
+	#Client drop 0% and server Drop 0% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0 
+	 --server-drop 0
+	 
+	#Client drop 0% and server Drop 50% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0 
+	 --server-drop 50
+	 
+	Client drop 0% and server Drop 100% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0 
+	 --server-drop 100
+	 ---------------------------
+	 (Client 50 drop server changing drop)
+	#Client drop 50% and server Drop 0% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 
+	 --server-drop 0
+	 
+	#Client drop 50% and server Drop 50% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 
+	 --server-drop 50
+	 
+	Client drop 50% and server Drop 100% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 
+	 --server-drop 100
+	  ---------------------------
+	 (Client 100 drop server changing drop)
+	#Client drop 100% and server Drop 0% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 
+	 --server-drop 0
+	 
+	#Client drop 100% and server Drop 50% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 
+	 --server-drop 50
+	 
+	Client drop 100% and server Drop 100% 
+	python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 
+	 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 
+	 --server-drop 100
+------------------------------------------------------------------------------
+(Auto generated double check)
+**Client Drop 0% and delay 0%**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0 --client-delay 0
+
+**Client Drop 50% and delay 50% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 --client-delay 50 --client-delay-time 1000
+
+**Client Drop 50% and delay 50% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 --client-delay 50 --client-delay-time 5000
+
+**Client Drop 100% and delay 100% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --client-delay 100 --client-delay-time 1000
+
+**Client Drop 100% and delay 100% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --client-delay 100 --client-delay-time 5000
+
+**Server Drop 50% and delay 50% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --server-drop 50 --server-delay 50 --server-delay-time 1000
+
+**Server Drop 50% and delay 50% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --server-drop 50 --server-delay 50 --server-delay-time 5000
+
+**Server Drop 100% and delay 100% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --server-drop 100 --server-delay 100 --server-delay-time 1000
+
+**Server Drop 100% and delay 100% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --server-drop 100 --server-delay 100 --server-delay-time 5000
+
+**Client Drop 0% and delay 0% plus server Drop 0% and delay 0%**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 0 --server-drop 0
+
+**Client Drop 50% and delay 50% and server Drop 50% and delay 50% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 --server-drop 50 --client-delay 50 --server-delay 50 --client-delay-time 1000 --server-delay-time 1000
+
+**Client Drop 50% and delay 50% and server Drop 50% and delay 50% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 50 --server-drop 50 --client-delay 50 --server-delay 50 --client-delay-time 5000 --server-delay-time 5000
+
+**Client Drop 100% and delay 100% and server Drop 100% and delay 100% (delay time less than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 1000 --server-delay-time 1000
+
+**Client Drop 100% and delay 100% and server Drop 100% and delay 100% (delay time more than timeout)**  
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 5000 --server-delay-time 5000
+
+Fixed value for client timeout
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 5000 --server-delay-time 5000
+
+Fixed value for client/server delay time
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 5000 --server-delay-time 5000
+
+Range for client/server delay time
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 1000-5000 --server-delay-time 1000-2000
+Valid Input for client timeout
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time 1000
+Invalid input for client timeout
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 --client-drop 100 --server-drop 100 --client-delay 100 --server-delay 100 --client-delay-time asdf
+Truncating when message greater than 1400 bytes
+python3 client.py --target-ip 127.0.0.1 --target-port 3001 < message.txt
+
+Reconfiguring settings while proxy is still running
+python3 proxy.py --listen-ip 127.0.0.1 --listen-port 3001 --target-ip 127.0.0.2 --target-port 5000 
+Press 1 when proxy is running give delay
+
+
