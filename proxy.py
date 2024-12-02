@@ -110,7 +110,7 @@ def handle_client_to_server(proxy_socket, protocol, packet, sender_address, sett
     forward_packet(proxy_socket, protocol, packet, settings["target_ip"], settings["target_port"])
 
 
-def handle_server_to_client(proxy_socket, protocol, packet, sender_address, settings, client_recv_port, settings_lock):
+def handle_server_to_client(proxy_socket, protocol, packet, client_recv_ip, client_recv_port, settings, settings_lock):
     """Handle packets from server to client."""
     print(f"Received packet from server: {packet.decode()}")
 
@@ -128,7 +128,7 @@ def handle_server_to_client(proxy_socket, protocol, packet, sender_address, sett
 
     # Forward to client
     # ***CHANGE forward_packet(proxy_socket, protocol, packet, client_recv_ip, client_recv_port) ***
-    forward_packet(proxy_socket, protocol, packet, settings["listen_ip"], client_recv_port)
+    forward_packet(proxy_socket, protocol, packet, client_recv_ip, client_recv_port)
     print(f"Forwarded packet to client: {packet.decode()}\n\n")
 
 def start_proxy(args):
@@ -142,6 +142,7 @@ def start_proxy(args):
 
     protocol = ReliableProtocol()
     client_recv_port = 0
+    client_recv_ip = 0
     # ***CHANGE client_recv_ip = 0***
     settings_lock = Lock()
     reconfigure_thread = Thread(target=reconfigure_settings, args=(settings,), daemon=True)
@@ -162,11 +163,11 @@ def start_proxy(args):
                     
                     # Determine direction of the packet based on ip
                     # ***CHANGE if sender_ip != settings["target_ip"]***
-                    if sender_ip == settings["listen_ip"]:
+                    if sender_ip != settings["listen_ip"]:
                         # Packet from client to server
                         print(f"Received packet from client: {packet.decode()}")
                         client_recv_port = sender_port
-                        
+                        client_recv_ip = sender_ip
                         # ***CHANGE client_recv_ip = sender_ip***
                         # Apply drop and delay logic for client-to-server packets
                         executor.submit( handle_client_to_server,proxy_socket,protocol,packet,sender_address,settings, settings_lock)
@@ -176,7 +177,7 @@ def start_proxy(args):
                         print(f"Received packet from server: {packet.decode()}")
 
                         # Apply drop and delay logic for server-to-client packets
-                        executor.submit(handle_server_to_client,proxy_socket,protocol,packet,sender_address,settings,client_recv_port, settings_lock)
+                        executor.submit(handle_server_to_client,proxy_socket,protocol,packet,client_recv_ip, client_recv_port, sender_address,settings, settings_lock)
 
                     else:
                         print(f"Unknown sender: {sender_ip}")
