@@ -91,7 +91,7 @@ class ReliableProtocol:
         packet_payload = packet.create_payload(message)
         # print(self.packets)
         if self.packets:
-            print("Current: " + str(packet.sequence_num) + "Prev:" + str(self.packets[-1].sequence_num))
+            # print("Current: " + str(packet.sequence_num) + "Prev:" + str(self.packets[-1].sequence_num))
         if self.packets and (packet.sequence_num == self.packets[-1].sequence_num):
             # print("Duplicate packet with ack" + str(ack) + " ignoring")
             return False

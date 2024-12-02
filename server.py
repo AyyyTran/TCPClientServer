@@ -21,7 +21,7 @@ def start_server(listen_ip, listen_port):
                 if flag == "SYN":
                     print("Accepting ACK sent")
                 else:
-                    print(f"Received message: {message} from {sender_address}")
+                    print(f"Received message: {message}")
                     print("Sending back ACK")
                 seq += 1
                 reliable_protocol.send(server_socket, "", seq, sender_address)
