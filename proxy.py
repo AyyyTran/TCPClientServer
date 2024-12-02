@@ -68,11 +68,11 @@ def reconfigure_settings(settings):
                 settings["server_delay"] = int(server_delay)
             client_delay_time = input("client delay time(ms): ")
             if client_delay_time:
-                settings["client_delay_time"] = int(client_delay_time)
+                settings["client_delay_time"] = str(client_delay_time)
 
             server_delay_time = input("server delay time(ms): ")
             if server_delay_time:
-                settings["server_delay_time"] = int(server_delay_time)
+                settings["server_delay_time"] = str(server_delay_time)
 
     
 def intialize_settings(args):
@@ -200,7 +200,7 @@ def parse_delay_time(delay_time, dir_label):
             int(params[i])
         except ValueError:
             sys.exit("Invalid value for " + dir_label + " delay time: " + params[i] + " !Must be integer!")
-
+    
     return int(delay_min), int(delay_max)
     # server_min = str_rep_server_delay_time
     # server_max = str_rep_server_delay_time
@@ -229,10 +229,10 @@ if __name__ == "__main__":
     parser.add_argument("--listen-port", type=int, required=True, help="Proxy listen port")
     parser.add_argument("--target-ip", type=str, required=True, help="Target server IP address")
     parser.add_argument("--target-port", type=int, required=True, help="Target server port")
-    parser.add_argument("--client-drop", type=int, default=0, help="Drop chance for client packets (0-100)")
-    parser.add_argument("--server-drop", type=int, default=0, help="Drop chance for server packets (0-100)")
-    parser.add_argument("--client-delay", type=int, default=0, help="Delay chance for client packets (0-100)")
-    parser.add_argument("--server-delay", type=int, default=0, help="Delay chance for server packets (0-100)")
+    parser.add_argument("--client-drop", type=int, default=0,choices=range(0, 101), help="Drop chance for client packets (0-100)")
+    parser.add_argument("--server-drop", type=int, default=0,choices=range(0, 101), help="Drop chance for server packets (0-100)")
+    parser.add_argument("--client-delay", type=int, default=0,choices=range(0, 101), help="Delay chance for client packets (0-100)")
+    parser.add_argument("--server-delay", type=int, default=0,choices=range(0, 101), help="Delay chance for server packets (0-100)")
     parser.add_argument("--client-delay-time", default=0, help="Delay time for client packets (ms)")
     parser.add_argument("--server-delay-time",  default=0, help="Delay time for server packets (ms)")
     args = parser.parse_args()
