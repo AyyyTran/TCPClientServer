@@ -24,9 +24,9 @@ def start_client(target_ip, target_port, timeout_in_secs):
                 print("sending packet with seq: " + str(seq_num))
                 # client_socket.sendto(message.encode(), (target_ip, target_port))
                 # print(reliable_protocol.packets)
-                # for packet in reliable_protocol.packets:
-                #     print(packet)
-                #     print(packet.acknowledgment_num)
+                for packet in reliable_protocol.packets:
+                    print(packet)
+                    print(packet.sequence_num)
                 reliable_protocol.send(client_socket, message,seq_num, target_ip, target_port)
                 client_socket.settimeout(timeout_in_secs) 
                 # Need while looop so client recieves the ack back from first response otherwise doesnt
