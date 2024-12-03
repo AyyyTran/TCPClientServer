@@ -1,0 +1,21 @@
+Timestamp,Event,Direction,Seq_Num,Message
+1733251773.6485653,Packet Received,Client->Server,0,
+1733251773.6487901,Packet Forwarded,127.0.0.2:5000,0,
+1733251773.6492643,Packet Received,Server->Client,1,
+1733251773.64937,Packet Forwarded,127.0.0.1:54979,1,
+1733251775.4502206,Packet Received,Client->Server,1,test
+1733251775.4503498,Packet Forwarded,127.0.0.2:5000,1,test
+1733251775.4507048,Packet Received,Server->Client,2,
+1733251775.450789,Packet Forwarded,127.0.0.1:54979,2,
+1733251776.083842,Packet Received,Client->Server,2,test
+1733251776.0839672,Packet Forwarded,127.0.0.2:5000,2,test
+1733251776.0843308,Packet Received,Server->Client,3,
+1733251776.0844212,Packet Forwarded,127.0.0.1:54979,3,
+1733251776.7867093,Packet Received,Client->Server,3,test
+1733251776.7868378,Packet Forwarded,127.0.0.2:5000,3,test
+1733251776.7871895,Packet Received,Server->Client,4,
+1733251776.7872775,Packet Forwarded,127.0.0.1:54979,4,
+1733251777.655741,Packet Received,Client->Server,4,test
+1733251777.6559293,Packet Forwarded,127.0.0.2:5000,4,test
+1733251777.6563687,Packet Received,Server->Client,5,
+1733251777.6564643,Packet Forwarded,127.0.0.1:54979,5,
