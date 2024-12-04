@@ -19,7 +19,7 @@ def should_apply(chance):
 def introduce_delay(delay_time):
     """Introduce a delay in milliseconds."""
     
-    time.sleep(delay_time / 1000)  # Convert milliseconds to seconds
+    time.sleep(delay_time / 1000)  
 
 
 def forward_packet(proxy_socket, protocol, packet, target_ip, target_port=None):
@@ -98,7 +98,6 @@ def handle_client_to_server(proxy_socket, protocol, packet, sender_address, sett
     with settings_lock:
         current_settings = settings.copy()
     delay_min, delay_max = parse_delay_time(current_settings["client_delay_time"], "client")
-    # Apply drop and delay logic for client-to-server packets
     if should_apply(current_settings["client_drop"]):
         print(f"Client packet dropped: {packet.decode()}")
         return
@@ -106,7 +105,6 @@ def handle_client_to_server(proxy_socket, protocol, packet, sender_address, sett
         delay_time = random.randint(delay_min, delay_max)
         print(f"Delaying client packet by {delay_time} ms: {packet.decode()}")
         introduce_delay(delay_time)
-    # Forward to server
     forward_packet(proxy_socket, protocol, packet, settings["target_ip"], settings["target_port"])
 
 
@@ -116,7 +114,6 @@ def handle_server_to_client(proxy_socket, protocol, packet, client_recv_ip, clie
 
     with settings_lock:
         current_settings = settings.copy()
-    # Apply drop and delay logic for server-to-client packets
     delay_min, delay_max = parse_delay_time(current_settings["server_delay_time"], "server")
     if should_apply(current_settings["server_drop"]):
         print(f"Server packet dropped: {packet.decode()}")
@@ -125,9 +122,6 @@ def handle_server_to_client(proxy_socket, protocol, packet, client_recv_ip, clie
         delay_time = random.randint(delay_min, delay_max)
         print(f"Delaying server packet by {delay_time} ms: {packet.decode()}")
         introduce_delay(delay_time)
-
-    # Forward to client
-    # ***CHANGE forward_packet(proxy_socket, protocol, packet, client_recv_ip, client_recv_port) ***
     forward_packet(proxy_socket, protocol, packet, client_recv_ip, client_recv_port)
     print(f"Forwarded packet to client: {packet.decode()}\n\n")
 
@@ -143,7 +137,6 @@ def start_proxy(args):
     protocol = ReliableProtocol()
     client_recv_port = 0
     client_recv_ip = 0
-    # ***CHANGE client_recv_ip = 0***
     settings_lock = Lock()
     reconfigure_thread = Thread(target=reconfigure_settings, args=(settings,), daemon=True)
     reconfigure_thread.start()
@@ -151,32 +144,17 @@ def start_proxy(args):
     try:
         with ThreadPoolExecutor(max_workers=10) as executor:
             while True:
-                # Safely read the latest settings
-                
-                # client_delay_min, client_delay_max, server_delay_min, server_delay_max = parse_delay_time(settings["client_delay_time"],settings["server_delay_time"])
-
-                # Receive packet from client or server
                 try:
                     packet, sender_address = proxy_socket.recvfrom(1024)
                     sender_ip, sender_port = sender_address
-
-                    
-                    # Determine direction of the packet based on ip
-                    # ***CHANGE if sender_ip != settings["target_ip"]***
                     if sender_ip != settings["target_ip"]:
-                        # Packet from client to server
                         print(f"Received packet from client: {packet.decode()}")
                         client_recv_port = sender_port
                         client_recv_ip = sender_ip
-                        # ***CHANGE client_recv_ip = sender_ip***
-                        # Apply drop and delay logic for client-to-server packets
                         executor.submit( handle_client_to_server,proxy_socket,protocol,packet,sender_address,settings, settings_lock)
 
                     elif sender_ip == settings["target_ip"]:
-                        # Packet from server to client
                         print(f"Received packet from server: {packet.decode()}")
-
-                        # Apply drop and delay logic for server-to-client packets
                         executor.submit(handle_server_to_client,proxy_socket,protocol,packet,client_recv_ip, client_recv_port,settings, settings_lock)
 
                     else:
@@ -193,7 +171,6 @@ def start_proxy(args):
 
 def parse_delay_time(delay_time, dir_label):
     str_rep_delay_time = str(delay_time)
-    # str_rep_server_delay_time = str(server_delay_time)
     delay_min = str_rep_delay_time
     delay_max = str_rep_delay_time
     if str_rep_delay_time:
@@ -209,26 +186,6 @@ def parse_delay_time(delay_time, dir_label):
             sys.exit("Invalid value for " + dir_label + " delay time: " + params[i] + " !Must be integer!")
     
     return int(delay_min), int(delay_max)
-    # server_min = str_rep_server_delay_time
-    # server_max = str_rep_server_delay_time
-    # if str_rep_server_delay_time:
-    #     listoftimes = str_rep_server_delay_time.split("-")
-    #     if len(listoftimes) == 2:
-    #         server_min = listoftimes[0]
-    #         server_max = listoftimes[1]
-    # params = [client_min,client_min,server_min,server_max]
-    # for i in range(len(params)):
-    #     label = ""
-    #     if i == 0 or i == [1]:
-    #         label = "client delay time"
-    #     else:
-    #         label = "server delay time"
-    #     try:
-    #         int(params[i])
-    #     except ValueError:
-    #         sys.exit("Invalid value for " + label + ": " + params[i] + " !Must be integer!")
-
-    # return int(client_min), int(client_max), int(server_min), int(server_max)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="UDP Proxy with drop and delay simulation")
