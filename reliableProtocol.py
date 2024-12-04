@@ -31,7 +31,7 @@ class ReliableProtocol:
                 print("No acknowledgment received. Timeout!")
                 self.send(client_socket, "",sequence_num,  target_ip, taget_port_num)
                 counter+=1
-                print("Resending connect ")
+
             
 
     def accept(self):
@@ -74,6 +74,3 @@ class ReliableProtocol:
         else:
             self.packets.append(packet)
             return True
-            
-    def close(socket):
-        socket.close()
