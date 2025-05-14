@@ -1,19 +1,85 @@
 # Purpose
 
-In this program we created a reliable protocol like TCP that helps achieve reliable data transmission that was tested through a client server communication with a malicious proxy in between that can drop and delay packets.
+In this program we created a reliable protocol like TCP that helps achieve reliable data transmission that was tested through a client server socket communication with a malicious proxy in between that can drop and delay packets in both directions from the client or server. 
 
 # Demo Video
 
+
+https://github.com/user-attachments/assets/adf021e1-8fbb-47b6-ae32-cd9668903cfd
+
 # Running locally
+
+**This requires you to have three devices one will be running the client, another running the server, and the last one will be running the proxy**
+
+### Installing
+```
+git clone https://github.com/AyyyTran/TCPClientServer.git
+```
+### Building
+Make sure you have python installed on all devices by running the commands:
+
+Ubuntu:
+```
+sudo apt install python3
+```
+
+Manjaro:
+```
+sudo pacman python3
+```
+### Running
+Make sure you are in the source directory can go there by going:
+```
+Cd TCPClientServer
+```
+```
+Cd source
+```
+```
+Cd src
+```
+
+Once in src you can start the program
+
+Client (all arguments required):
+```
+Python3 client.py --target-ip <target-ip> --target-port <port_num> -- timeout <timeout_in_secs>
+```
+server (all arguments required):
+```
+Python3 server.py --listen-ip <target-ip> --listen-port <port_num>
+```
+
+proxy (all arguments required):
+```
+Python3 proxy.py --target-ip <target-ip> --target-port <port_num> --listen-ip <target-ip> --listen-port <port_num>
+--client-drop <client drop rate> --server-drop <server drop rate>
+--client-delay <client delay rate> --server-delay 15 <server delay rate>
+--client delay-time <client delay time> --server-delay-time <server delay time>
+```
+**make sure that each machine has the reliableProtocol.py and customPakcet.py in the
+same directory as the client,server, and proxy python files**
+
+
+### Command Line Arguments
+| Variable           | Purpose        |   
+| -------------      |:--------------:| 
+| listen-ip          | IP address to listen for  |
+| listen-port        | Port number to listen at     |   
+| target-ip          | IP address to target       |
+| target-port        | Port number to target      |
+| timeout            | Timeout that client waits for before retransmitting                  |
+| client-drop        | Chance of client packet to server being dropped                      |
+| server-drop        | Chance of server packet to client being dropped                      |
+| client-delay       | Chance of client packet to server being delayed                      |
+| server-delay       | Chance of server packet to client being delayed                      |
+| client-delay-time  | Time client packet to server gets delayed by (in milliseconds)       |
+| server-delay-time  | Time server packet to client gets delayed by (in milliseconds)       |
 
 # Findings
 
 We found out that there are many ways that a transmission can be affected. For example the client can timeout and retransmit if there is a 100% drop rate on server or client direction. 
 The client can also retransmit when there is a delay time longer than the client timeout server or client direction.
-
-## Graph Analysis
-
-We have  have summarized and listed our observations and reasonings and analysis of the differnet scenarios and there corresponding graphs.
 
 ### Client-Drop: 0%, Server-Drop: 0%
 
